@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生のための適職診断テスト</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .question {
+            margin-bottom: 25px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        button {
+            display: block;
+            width: 250px;
+            margin: 30px auto;
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #e8f6f3;
+            border-radius: 8px;
+            display: none;
+        }
+        #resultText {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        #matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+            position: relative;
+        }
+        .matrix-cell {
+            aspect-ratio: 1;
+            border: 1px solid #bdc3c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+            font-size: 16px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .matrix-cell:hover {
+            background-color: #d5dbdb;
+        }
+        #plot {
+            width: 25px;
+            height: 25px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>学生のための適職診断テスト</h1>
+        <form id="quiz">
+            <div class="question">
+                <label>1. グループプロジェクトや部活動で、チームワークを楽しむことが多いですか？</label>
+                <input type="radio" name="q1" value="1" required> はい
+                <input type="radio" name="q1" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>2. 勉強や課外活動で目標を立てて取り組むことが好きですか？</label>
+                <input type="radio" name="q2" value="1" required> はい
+                <input type="radio" name="q2" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>3. 新しい人と話すことや、人前で発表することに抵抗がありませんか？</label>
+                <input type="radio" name="q3" value="1" required> はい
+                <input type="radio" name="q3" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>4. 自分の成績や成果を定期的にチェックしていますか？</label>
+                <input type="radio" name="q4" value="1" required> はい
+                <input type="radio" name="q4" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>5. クラスや部活でプレゼンテーションをする機会が多いですか？</label>
+                <input type="radio" name="q5" value="1" required> はい
+                <input type="radio" name="q5" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>6. 自分で決めた目標に向かって努力することが得意ですか？</label>
+                <input type="radio" name="q6" value="1" required> はい
+                <input type="radio" name="q6" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>7. SNSやメッセージアプリでのコミュニケーションを頻繁に行いますか？</label>
+                <input type="radio" name="q7" value="1" required> はい
+                <input type="radio" name="q7" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>8. テストの点数や成績順位を気にする方ですか？</label>
+                <input type="radio" name="q8" value="1" required> はい
+                <input type="radio" name="q8" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>9. 友達や先生とのコミュニケーションを大切にしていますか？</label>
+                <input type="radio" name="q9" value="1" required> はい
+                <input type="radio" name="q9" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>10. 課題や宿題の進捗管理をきちんと行っていますか？</label>
+                <input type="radio" name="q10" value="1" required> はい
+                <input type="radio" name="q10" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>11. 理科や数学の実験・問題を解くのが好きですか？</label>
+                <input type="radio" name="q11" value="1" required> はい
+                <input type="radio" name="q11" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>12. 新しい技術やガジェットに興味がありますか？</label>
+                <input type="radio" name="q12" value="1" required> はい
+                <input type="radio" name="q12" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>13. 絵を描いたり、音楽を作ったりするのが好きですか？</label>
+                <input type="radio" name="q13" value="1" required> はい
+                <input type="radio" name="q13" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>14. 他人の世話をしたり、助けたりすることに喜びを感じますか？</label>
+                <input type="radio" name="q14" value="1" required> はい
+                <input type="radio" name="q14" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>15. 物事を論理的に考えるのが得意ですか？</label>
+                <input type="radio" name="q15" value="1" required> はい
+                <input type="radio" name="q15" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>16. 自然や環境問題に興味がありますか？</label>
+                <input type="radio" name="q16" value="1" required> はい
+                <input type="radio" name="q16" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>17. 人の話を聞いてアドバイスをするのが得意ですか？</label>
+                <input type="radio" name="q17" value="1" required> はい
+                <input type="radio" name="q17" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>18. 新しいアイデアを考えるのが好きですか？</label>
+                <input type="radio" name="q18" value="1" required> はい
+                <input type="radio" name="q18" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>19. 物を作ったり、修理したりするのが好きですか？</label>
+                <input type="radio" name="q19" value="1" required> はい
+                <input type="radio" name="q19" value="0"> いいえ
+            </div>
+            <div class="question">
+                <label>20. 人を説得したり、何かを売り込んだりするのが得意ですか？</label>
+                <input type="radio" name="q20" value="1" required> はい
+                <input type="radio" name="q20" value="0"> いいえ
+            </div>
+            <button type="button" onclick="calculateResult()">結果を見る</button>
+        </form>
+
+        <div id="result">
+            <h2>あなたの適職診断結果</h2>
+            <p id="resultText"></p>
+            <div id="matrix">
+                <div class="matrix-cell">IT・エンジニア</div>
+                <div class="matrix-cell">ビジネス・経営</div>
+                <div class="matrix-cell">クリエイティブ</div>
+                <div class="matrix-cell">サービス</div>
+                <div class="matrix-cell">教育</div>
+                <div class="matrix-cell">医療・福祉</div>
+                <div class="matrix-cell">製造・生産</div>
+                <div class="matrix-cell">販売・小売</div>
+                <div class="matrix-cell">自然・環境</div>
+                <div id="plot"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateResult() {
+            const form = document.getElementById('quiz');
+            const formData = new FormData(form);
+
+            let scores = {
+                itEngineer: 0,
+                businessManagement: 0,
+                creative: 0,
+                service: 0,
+                education: 0,
+                medicalWelfare: 0,
+                manufacturingProduction: 0,
+                salesRetail: 0,
+                natureEnvironment: 0
+            };
+
+            const questionWeights = {
+                itEngineer: [1, 4, 11, 12, 15],
+                businessManagement: [2, 5, 6, 8, 18],
+                creative: [3, 7, 13, 18],
+                service: [3, 9, 14, 17],
+                education: [1, 5, 9, 17],
+                medicalWelfare: [9, 14, 17],
+                manufacturingProduction: [4, 15, 19],
+                salesRetail: [3, 7, 20],
+                natureEnvironment: [16, 19]
+            };
+
+            for (let [name, value] of formData.entries()) {
+                const questionNumber = parseInt(name.substring(1));
+                const answer = parseInt(value);
+
+                if (answer === 1) {
+                    for (let field in questionWeights) {
+                        if (questionWeights[field].includes(questionNumber)) {
+                            scores[field] += 1;
+                        }
+                    }
+                }
+            }
+
+            const highestScore = Math.max(...Object.values(scores));
+            const result = Object.keys(scores).find(key => scores[key] === highestScore);
+
+            const resultText = document.getElementById('resultText');
+            const resultDescriptions = {
+                itEngineer: "IT・エンジニアの分野が向いているようです。論理的思考と技術的な問題解決能力が高く評価されます。",
+                businessManagement: "ビジネス・経営の分野が向いているようです。目標設定と達成、リーダーシップスキルが活かせます。",
+                creative: "クリエイティブな分野が向いているようです。独創的なアイデアを生み出し、表現する能力が高く評価されます。",
+                service: "サービス業が向いているようです。人とのコミュニケーションスキルと相手のニーズを理解する能力が活かせます。",
+                education: "教育分野が向いているようです。知識を共有し、他人の成長をサポートする能力が高く評価されます。",
+                medicalWelfare: "医療・福祉の分野が向いているようです。人を思いやる心と他人を助ける能力が活かせます。",
+                manufacturingProduction: "製造・生産の分野が向いているようです。物を作ることへの興味と細部への注意力が高く評価されます。",
+                salesRetail: "販売・小売の分野が向いているようです。コミュニケーション能力と説得力が活かせます。",
+                natureEnvironment: "自然・環境関連の分野が向いているようです。自然への関心と環境問題への意識の高さが活かせます。"
+            };
+
+            resultText.textContent = resultDescriptions[result];
+
+            const plot = document.getElementById('plot');
+            const matrix = document.getElementById('matrix');
+            const cells = matrix.getElementsByClassName('matrix-cell');
+            const cellIndex = Object.keys(scores).indexOf(result);
+            const targetCell = cells[cellIndex];
+
+            const cellRect = targetCell.getBoundingClientRect();
+            const matrixRect = matrix.getBoundingClientRect();
+
+　　　　　　 plot.style.top = `${cellRect.top - matrixRect.top + cellRect.height / 2 - 12.5}px`;
+            plot.style.left = `${cellRect.left - matrixRect.left + cellRect.width / 2 - 12.5}px`;
+
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
