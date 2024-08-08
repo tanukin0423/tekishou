@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拡張版：学生のための適職診断テスト</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .question {
+            margin-bottom: 25px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        button {
+            display: block;
+            width: 250px;
+            margin: 30px auto;
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #e8f6f3;
+            border-radius: 8px;
+            display: none;
+        }
+        #resultText {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        #matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+            position: relative;
+            aspect-ratio: 4/3;
+        }
+        .matrix-cell {
+            border: 1px solid #bdc3c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .matrix-cell:hover {
+            background-color: #d5dbdb;
+        }
+        .plot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        #plot1 { background-color: #e74c3c; }
+        #plot2 { background-color: #3498db; }
+        #plot3 { background-color: #2ecc71; }
+        #printButton {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        #printButton:hover {
+            background-color: #27ae60;
+        }
+        @media print {
+            body {
+                background-color: #fff;
+            }
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+                padding: 0;
+            }
+            #printButton {
+                display: none;
+            }
+            #matrix {
+                page-break-inside: avoid;
+            }
+            .plot {
+                box-shadow: none;
+                border: 2px solid #000;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>拡張版：学生のための適職診断テスト</h1>
+        <form id="quiz">
+            <!-- 質問はここに追加されます（JavaScriptで動的に生成） -->
+        </form>
+        <div id="result">
+            <h2>診断結果</h2>
+            <p id="resultText"></p>
+            <div id="matrix">
+                <div class="matrix-cell">技術系</div>
+                <div class="matrix-cell">管理系</div>
+                <div class="matrix-cell">クリエイティブ系</div>
+                <div class="matrix-cell">対人サービス系</div>
+                <div class="matrix-cell">教育系</div>
+                <div class="matrix-cell">医療・福祉系</div>
+                <div class="matrix-cell">製造・生産系</div>
+                <div class="matrix-cell">営業系</div>
+                <div class="matrix-cell">農業・環境系</div>
+                <div class="matrix-cell">理系研究</div>
+                <div class="matrix-cell">コンサル系</div>
+                <div class="matrix-cell">公務員系</div>
+            </div>
+            <button id="printButton">結果を印刷</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "パソコンやスマートフォンの新しい機能を探索するのが好きですか？", category: "tech" },
+            { q: "学校の委員会やイベントの企画運営に参加するのが好きですか？", category: "management" },
+            { q: "絵を描いたり、写真を撮ったりするのが好きですか？", category: "creative" },
+            { q: "人の役に立つことに喜びを感じますか？", category: "service" },
+            { q: "友達に勉強を教えるのが楽しいですか？", category: "education" },
+            { q: "病気や怪我の人を助けたいと思いますか？", category: "healthcare" },
+            { q: "物を組み立てたり、分解したりするのが好きですか？", category: "manufacturing" },
+            { q: "人を説得したり、アイデアを売り込んだりするのが得意ですか？", category: "sales" },
+            { q: "植物や動物の世話をするのが好きですか？", category: "agriculture" },
+            { q: "論理パズルや数独を解くのを楽しみますか？", category: "tech" },
+            { q: "ニュースで経済や企業の話題に興味を持ちますか？", category: "management" },
+            { q: "独創的なアイデアを考えるのが得意ですか？", category: "creative" },
+            { q: "友達や家族の相談に乗るのが得意ですか？", category: "service" },
+            { q: "子供と接するのが好きですか？", category: "education" },
+            { q: "高齢者や障害者のサポートに興味がありますか？", category: "healthcare" },
+            { q: "品質管理や改善活動に興味がありますか？", category: "manufacturing" },
+            { q: "流行やトレンドに敏感な方ですか？", category: "sales" },
+            { q: "環境問題について考えることがありますか？", category: "agriculture" },
+            { q: "プログラミングに興味がありますか？", category: "tech" },
+            { q: "リーダーシップを発揮する機会があると嬉しいですか？", category: "management" },
+            { q: "音楽を作ったり、演奏したりするのを楽しみますか？", category: "creative" },
+            { q: "接客のアルバイトに興味がありますか？", category: "service" },
+            { q: "自分の知識や経験を他人に伝えるのが得意ですか？", category: "education" },
+            { q: "健康や栄養について学ぶのが好きですか？", category: "healthcare" },
+            { q: "機械の仕組みを理解するのが楽しいですか？", category: "manufacturing" },
+            { q: "セールスコンテストに参加してみたいと思いますか？", category: "sales" },
+            { q: "自然の中でフィールドワークをすることに興味がありますか？", category: "agriculture" },
+            { q: "科学技術の進歩について知ることが楽しいですか？", category: "tech" },
+            { q: "効率的な方法を考えて物事を進めるのが得意ですか？", category: "management" },
+            { q: "デザインや色の組み合わせに興味がありますか？", category: "creative" },
+            { q: "人と話すことが好きですか？", category: "service" },
+            { q: "人の成長を見るのが嬉しいですか？", category: "education" },
+            { q: "ボランティア活動に参加したいと思いますか？", category: "healthcare" },
+            { q: "手で何かを作るのが好きですか？", category: "manufacturing" },
+            { q: "お客様の要望を聞き出すのが得意ですか？", category: "sales" },
+            { q: "リサイクルや省エネに積極的に取り組んでいますか？", category: "agriculture" },
+            { q: "実験や研究に興味がありますか？", category: "science" },
+            { q: "データ分析や統計に関心がありますか？", category: "science" },
+            { q: "新しい科学的発見に興奮を覚えますか？", category: "science" },
+            { q: "複雑な問題を分析し、解決策を提案するのが好きですか？", category: "consulting" },
+            { q: "ビジネス戦略を考えるのが楽しいですか？", category: "consulting" },
+            { q: "様々な業界や企業について学ぶのが好きですか？", category: "consulting" },
+            { q: "社会の仕組みや法律に興味がありますか？", category: "publicService" },
+            { q: "地域社会の発展に貢献したいと思いますか？", category: "publicService" },
+            { q: "公平性や正義を重視しますか？", category: "publicService" },
+            { q: "科学実験を行うのが好きですか？", category: "science" },
+            { q: "プレゼンテーションやプロポーザルを作成するのが得意ですか？", category: "consulting" },
+            { q: "政策立案や行政サービスに興味がありますか？", category: "publicService" }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('quiz');
+            
+            // 質問をフォームに追加
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <label>${index + 1}. ${q.q}</label>
+                    <input type="radio" name="q${index + 1}" value="${q.category}" required> はい
+                    <input type="radio" name="q${index + 1}" value="0"> いいえ
+                `;
+                form.appendChild(questionDiv);
+            });
+
+            // 送信ボタンを追加
+            const submitButton = document.createElement('button');
+            submitButton.type = 'submit';
+            submitButton.textContent = '結果を見る';
+            form.appendChild(submitButton);
+
+            // フォーム送信イベントリスナー
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                let scores = {
+                    tech: 0, management: 0, creative: 0, service: 0, education: 0,
+                    healthcare: 0, manufacturing: 0, sales: 0, agriculture: 0,
+                    science: 0, consulting: 0, publicService: 0
+                };
+
+                // 各質問のスコアを計算
+                for (let i = 1; i <= questions.length; i++) {
+                    let checkedInput = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (checkedInput && checkedInput.value !== '0') {
+                        scores[checkedInput.value]++;
+                    }
+                }
+
+                // スコアを降順にソート
+                let sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+                let topCareers = sortedScores.slice(0, 3);
+
+                // 結果テキストを生成
+                let resultText = '最も適性がある職種は:\n';
+                topCareers.forEach((career, index) => {
+                    let careerName = getCareerName(career[0]);
+                    resultText += `${index + 1}. ${careerName} (スコア: ${career[1]})\n`;
+                });
+
+                // 結果を表示
+                document.getElementById('resultText').textContent = resultText;
+                document.getElementById('result').style.display = 'block';
+
+                // マトリックス上にプロットを表示
+                let matrix = document.getElementById('matrix');
+                topCareers.forEach((career, index) => {
+                    let plot = document.getElementById(`plot${index + 1}`) || document.createElement('div');
+                    plot.id = `plot${index + 1}`;
+                    plot.className = 'plot';
+                    let cellIndex = Object.keys(scores).indexOf(career[0]);
+                    let cell = matrix.children[cellIndex];
+                    let cellRect = cell.getBoundingClientRect();
+                    let matrixRect = matrix.getBoundingClientRect();
+                    let left = (cellRect.left - matrixRect.left + cellRect.width / 2 - 10) / matrixRect.width * 100;
+                    let top = (cellRect.top - matrixRect.top + cellRect.height / 2 - 10) / matrixRect.height * 100;
+                    plot.style.left = `${left}%`;
+                    plot.style.top = `${top}%`;
+                    matrix.appendChild(plot);
+                });
+            });
+
+            // 印刷ボタンのイベントリスナー
+            document.getElementById('printButton').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.print();
+            });
+        });
+
+        function getCareerName(career) {
+            const careerNames = {
+                tech: 'IT・技術系',
+                management: 'マネジメント・管理系',
+                creative: 'クリエイティブ系',
+                service: '接客・対人サービス系',
+                education: '教育系',
+                healthcare: '医療・福祉系',
+                manufacturing: 'ものづくり・製造・生産系',
+                sales: '営業系',
+                agriculture: '農業・環境系',
+                science: '理系研究',
+                consulting: 'コンサル系',
+                publicService: '公務員系'
+            };
+            return careerNames[career] || career;
+        }
+    </script>
+</body>
+</html>
